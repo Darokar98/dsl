@@ -1,0 +1,201 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+const int MAX_PARTICIPANTS = 100;
+
+class EquinoxEvents {
+private:
+    int coding[MAX_PARTICIPANTS];
+    int project[MAX_PARTICIPANTS];
+    int paperPresentation[MAX_PARTICIPANTS];
+    int mastermind[MAX_PARTICIPANTS];
+
+    int codingCount;
+    int projectCount;
+    int paperPresentationCount;
+
+    int mastermindCount;
+
+public:
+    EquinoxEvents();
+
+    void addParticipant(int rollNumber, string event);
+    void findCodingAndProject();
+    void findCodingOrProjectOrMastermind();
+    void findCodingButNotMastermind();
+    void findAllEvents();
+
+    void printArray(int arr[], int size);
+};
+
+EquinoxEvents::EquinoxEvents() {
+    codingCount = projectCount = paperPresentationCount = mastermindCount = 0;
+}
+
+void EquinoxEvents::addParticipant(int rollNumber, string event) {
+    if (event == "Coding") {
+        coding[codingCount++] = rollNumber;
+    } else if (event == "Project") {
+        project[projectCount++] = rollNumber;
+    } else if (event == "PaperPresentation") {
+        paperPresentation[paperPresentationCount++] = rollNumber;
+    } else if (event == "Mastermind") {
+        mastermind[mastermindCount++] = rollNumber;
+    } else {
+        cout << "Invalid event name!" << endl;
+    }
+}
+
+void EquinoxEvents::findCodingAndProject() {
+    cout << "Participants in both Coding and Project: ";
+    for (int i = 0; i < codingCount; i++) {
+        for (int j = 0; j < projectCount; j++) {
+            if (coding[i] == project[j]) {
+                cout << coding[i] << " ";
+            }
+        }
+    }
+    cout << endl;
+}
+
+void EquinoxEvents::findCodingOrProjectOrMastermind() {
+    int result[MAX_PARTICIPANTS];
+    int resultCount = 0;
+
+    // Add all participants from Coding
+    for (int i = 0; i < codingCount; i++) {
+        result[resultCount++] = coding[i];
+    }
+
+    // Add participants from Project that aren't already in result
+    for (int i = 0; i < projectCount; i++) {
+        bool found = false;
+        for (int j = 0; j < resultCount; j++) {
+            if (project[i] == result[j]) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            result[resultCount++] = project[i];
+        }
+    }
+
+    // Add participants from Mastermind that aren't already in result
+    for (int i = 0; i < mastermindCount; i++) {
+        bool found = false;
+        for (int j = 0; j < resultCount; j++) {
+            if (mastermind[i] == result[j]) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            result[resultCount++] = mastermind[i];
+        }
+    }
+
+    cout << "Participants in Coding or Project or both or Mastermind: ";
+    printArray(result, resultCount);
+}
+
+void EquinoxEvents::findCodingButNotMastermind() {
+    cout << "Participants in Coding but not in Mastermind: ";
+    for (int i = 0; i < codingCount; i++) {
+        bool found = false;
+        for (int j = 0; j < mastermindCount; j++) {
+            if (coding[i] == mastermind[j]) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            cout << coding[i] << " ";
+        }
+    }
+    cout << endl;
+}
+
+void EquinoxEvents::findAllEvents() {
+    cout << "Participants in all events: ";
+    for (int i = 0; i < codingCount; i++) {
+        bool inProject = false, inPaperPresentation = false, inMastermind = false;
+        for (int j = 0; j < projectCount; j++) {
+            if (coding[i] == project[j]) {
+                inProject = true;
+                break;
+            }
+        }
+        for (int j = 0; j < paperPresentationCount; j++) {
+            if (coding[i] == paperPresentation[j]) {
+                inPaperPresentation = true;
+                break;
+            }
+        }
+        for (int j = 0; j < mastermindCount; j++) {
+            if (coding[i] == mastermind[j]) {
+                inMastermind = true;
+                break;
+            }
+        }
+        if (inProject && inPaperPresentation && inMastermind) {
+            cout << coding[i] << " ";
+        }
+    }
+    cout << endl;
+}
+
+void EquinoxEvents::printArray(int arr[], int size) {
+    for (int i = 0; i < size; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+}
+
+int main() {
+    EquinoxEvents events;
+    int choice, rollNumber;
+    string event;
+
+    do {
+        cout << "\nMenu:\n";
+        cout << "1. Add Participant\n";
+        cout << "2. Participants in both Coding and Project\n";
+        cout << "3. Participants in Coding or Project or Mastermind\n";
+        cout << "4. Participants in Coding but not in Mastermind\n";
+        cout << "5. Participants in all events\n";
+        cout << "6. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter roll number: ";
+                cin >> rollNumber;
+                cout << "Enter event (Coding, Project, PaperPresentation, Mastermind): ";
+                cin >> event;
+                events.addParticipant(rollNumber, event);
+                break;
+            case 2:
+                events.findCodingAndProject();
+                break;
+            case 3:
+                events.findCodingOrProjectOrMastermind();
+                break;
+            case 4:
+                events.findCodingButNotMastermind();
+                break;
+            case 5:
+                events.findAllEvents();
+                break;
+            case 6:
+                cout << "Exiting program.\n";
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    } while (choice != 6);
+
+    return 0;
+}

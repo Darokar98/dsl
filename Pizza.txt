@@ -1,0 +1,166 @@
+#include <iostream>
+using namespace std;
+
+class Que {
+private:
+    int a[5];  // Array to store the orders
+    int rear = -1;
+    int front = -1;
+    int totalOrders = 0;  // Keeps track of total orders placed
+
+public:
+    void create();
+    void pop();
+    int isFull();
+    int isEmpty();
+    void display();
+    bool canOrderMore();  // Function to check if more orders can be placed
+};
+
+int Que::isFull() {
+    return rear == 4;  // Queue is full when rear reaches the maximum size (4)
+}
+
+int Que::isEmpty() {
+    return front == -1;  // If front is -1, it means no orders have been placed
+}
+
+bool Que::canOrderMore() {
+    return totalOrders < 5;  // Ensure no more than 5 orders can be placed in total
+}
+
+void Que::create() {
+    if (!canOrderMore()) {
+        cout << "You have already placed the maximum allowed orders (5 orders).\n";
+        return;
+    }
+
+    int o;
+    cout << "How many orders would you like to place? (Max 5 orders in total): ";
+    cin >> o;
+
+    // Validate input for number of orders
+    if (o >= 1 && o <= 5) {
+        for (int i = 0; i < o; i++) {
+            int n;
+            cout << "Enter your favorite food (choose a number between 1 and 8): ";
+            cin >> n;
+
+            if (n >= 1 && n <= 8) {
+                if (front == -1) front = 0;  // Set front to 0 when first order is placed
+                a[++rear] = n;  // Add the order to the queue
+                totalOrders++;  // Increment total orders
+                cout << "Your order has been placed successfully.\nThank you for ordering!\n";
+            } else {
+                cout << "Please enter a valid order number between 1 and 8.\n";
+            }
+        }
+    } else {
+        cout << "Sorry, you cannot order more than 5 items in total.\n";
+    }
+}
+
+void Que::pop() {
+    if (isEmpty()) {
+        cout << "No orders have been placed yet.\n";
+        return;
+    }
+
+    cout << "Order ID " << a[front] << " has been delivered successfully.\n";
+    front++;  // Deliver the first order (move front to the next order)
+
+    // Reset queue when all orders are delivered
+    if (front > rear) {
+        front = rear = -1;
+    }
+}
+
+void Que::display() {
+    if (isEmpty()) {
+        cout << "All orders have been delivered.\n";
+        return;
+    }
+
+    cout << "Remaining orders to be delivered: ";
+    for (int i = front; i <= rear; i++) {
+        cout << a[i] << " ";
+    }
+    cout << endl;
+}
+
+class Pizza {
+private:
+    Que q;
+
+public:
+    void takeOrders();
+    void deliver();
+    void show();
+};
+
+void Pizza::takeOrders() {
+    cout << "==============================\n";
+    cout << "         Pizza Menu           \n";
+    cout << "==============================\n";
+    cout << "1. Margherita Pizza         $8.99\n";
+    cout << "2. Pepperoni Pizza          $9.99\n";
+    cout << "3. Hawaiian Pizza           $10.99\n";
+    cout << "4. Veggie Pizza             $9.49\n";
+    cout << "5. BBQ Chicken Pizza        $11.99\n";
+    cout << "6. Meat Lovers Pizza        $12.99\n";
+    cout << "7. Four Cheese Pizza        $10.49\n";
+    cout << "8. Buffalo Chicken Pizza    $11.49\n";
+    cout << "==============================\n";
+    cout << "         Enjoy Your Meal!    \n";
+    cout << "==============================\n";
+
+    cout << "============Note=================\n";
+    cout << "Orders will be placed according to their order time, meaning first order first delivered.\n";
+    cout << "==============================\n";
+
+    q.create();  // Call to create orders
+}
+
+void Pizza::deliver() {
+    q.pop();  // Call to deliver the order
+}
+
+void Pizza::show() {
+    q.display();  // Call to display remaining orders
+}
+
+int main() {
+    Pizza p;
+    int c;
+
+    do {
+        cout << "1. For Ordering \n2. For Delivery\n";
+        cout << "3. Display Orders\n4. Exit\nEnter Your Choice: ";
+        cin >> c;
+
+        switch (c) {
+            case 1:
+                p.takeOrders();
+                break;
+            case 2:
+                p.deliver();
+                break;
+            case 3:
+                p.show();
+                break;
+            case 4:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid option. Please try again.\n";
+        }
+
+        // Ask if the user wants to continue
+        if (c != 4) {
+            cout << "Do you want to continue? (1 for yes & 2 for no): ";
+            cin >> c;
+        }
+    } while (c == 1);  // Continue the loop if the user chooses 1 for ordering
+
+    return 0;
+}

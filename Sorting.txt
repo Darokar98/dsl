@@ -1,0 +1,171 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime> // For random seeding
+#include <algorithm> // For STL sort
+
+using namespace std;
+
+void selectionSort(float arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        int minIndex = i;
+        for (int j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        swap(arr[i], arr[minIndex]);
+    }
+}
+
+void bubbleSort(float arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
+            }
+        }
+    }
+}
+
+void insertionSort(float arr[], int n) {
+    for (int i = 1; i < n; i++) {
+        float key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void quickSort(float arr[], int low, int high) {
+    if (low < high) {
+        float pivot = arr[high];
+        int i = low - 1;
+        for (int j = low; j < high; j++) {
+            if (arr[j] < pivot) {
+                i++;
+                swap(arr[i], arr[j]);
+            }
+        }
+        swap(arr[i + 1], arr[high]);
+        quickSort(arr, low, i);
+        quickSort(arr, i + 2, high);
+    }
+}
+
+void shellSort(float arr[], int n) {
+    for (int gap = n / 2; gap > 0; gap /= 2) {
+        for (int i = gap; i < n; i++) {
+            float temp = arr[i];
+            int j;
+            for (j = i; j >= gap && arr[j - gap] > temp; j -= gap) {
+                arr[j] = arr[j - gap];
+            }
+            arr[j] = temp;
+        }
+    }
+}
+
+void displayTopFive(float arr[], int n) {
+    int limit = (n < 5) ? n : 5;
+    for (int i = 0; i < limit; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+}
+
+void generateRandomScores(float arr[], int n) {
+    for (int i = 0; i < n; i++) {
+        arr[i] = static_cast<float>(rand() % 101); // Random score between 0-100
+    }
+}
+
+int main() {
+    srand(time(0)); // Seed the random number generator
+
+    int n, choice;
+    cout << "Enter the number of students: ";
+    cin >> n;
+    float scores[n];
+    
+    cout << "Choose input method:\n";
+    cout << "1. User Input\n";
+    cout << "2. Random Scores\n";
+    cout << "Enter your choice: ";
+    cin >> choice;
+    
+    if (choice == 1) {
+        cout << "Enter the scores:\n";
+        for (int i = 0; i < n; i++) {
+            cin >> scores[i];
+        }
+    } else {
+        generateRandomScores(scores, n);
+        cout << "Generated Random Scores:\n";
+        displayTopFive(scores, n);
+    }
+
+    do {
+        cout << "\nMenu:\n";
+        cout << "1. Selection Sort\n";
+        cout << "2. Bubble Sort\n";
+        cout << "3. Insertion Sort\n";
+        cout << "4. Quick Sort\n";
+        cout << "5. Shell Sort\n";
+        cout << "6. Display Top Five Scores\n";
+        cout << "7. Sort using STL\n";
+        cout << "8. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                selectionSort(scores, n);
+                cout << "Scores sorted using Selection Sort.\n";
+                break;
+            case 2:
+                bubbleSort(scores, n);
+                cout << "Scores sorted using Bubble Sort.\n";
+                break;
+            case 3:
+                insertionSort(scores, n);
+                cout << "Scores sorted using Insertion Sort.\n";
+                break;
+            case 4:
+                quickSort(scores, 0, n - 1);
+                cout << "Scores sorted using Quick Sort.\n";
+                break;
+            case 5:
+                shellSort(scores, n);
+                cout << "Scores sorted using Shell Sort.\n";
+                break;
+            case 6:
+                cout << "Top Five Scores:\n";
+                displayTopFive(scores, n);
+                break;
+            case 7:
+                sort(scores, scores + n); // STL sort
+                cout << "Scores sorted using STL Sort.\n";
+                break;
+            case 8:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice.\n";
+        }
+
+        // Display sorted array after each sort (except when displaying top five)
+        if (choice != 6) {
+            cout << "Sorted Scores: ";
+            for (int i = 0; i < n; i++) {
+                cout << scores[i] << " ";
+            }
+            cout << endl;
+        }
+        
+    } while (choice != 8);
+
+    return 0;
+}

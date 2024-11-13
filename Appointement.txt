@@ -1,0 +1,225 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+// Structure for an appointment node
+struct Appointment {
+    string name;
+    int startTime; // Start time in minutes (e.g., 9:00 AM = 540)
+    Appointment* next;
+};
+
+class AppointmentScheduler {
+private:
+    Appointment* head;
+    const int DAY_START = 540; // 9:00 AM
+    const int DAY_END = 600;   // 10:00 AM
+    const int SLOT_DURATION = 10; // 20 minutes per slot
+
+public:
+    AppointmentScheduler() {
+        head = nullptr;
+    }
+
+    // Display available slots
+    void displayFreeSlots() {
+        cout << "Available slots:\n";
+        for (int time = DAY_START; time < DAY_END; time += SLOT_DURATION) {
+            bool booked = false;
+            Appointment* current = head;
+            while (current != nullptr) {
+                if (current->startTime == time) {
+                    booked = true;
+                    break;
+                }
+                current = current->next;
+            }
+            if (!booked) {
+                cout << time / 60 << ":" << (time % 60) << " - " << (time + SLOT_DURATION) / 60 << ":" << (time + SLOT_DURATION) % 60 << "\n";
+            }
+        }
+    }
+
+    // Book a new appointment
+    void bookAppointment(string name, int start) {
+        if (start < DAY_START || start + SLOT_DURATION > DAY_END) {
+            cout << "Invalid time! Appointments are between 9:00 AM and 10:00 AM.\n";
+            return;
+        }
+
+        Appointment* newAppointment = new Appointment;
+        newAppointment->name = name;
+        newAppointment->startTime = start;
+        newAppointment->next = nullptr;
+
+        // Check for overlapping appointments
+        Appointment* current = head;
+        while (current != nullptr) {
+            if (current->startTime == start) {
+                cout << "Time slot not available!\n";
+                delete newAppointment;
+                return;
+            }
+            current = current->next;
+        }
+
+        // Add new appointment to the list
+        newAppointment->next = head;
+        head = newAppointment;
+        cout << "Appointment booked successfully!\n";
+    }
+
+    // Cancel an appointment
+    void cancelAppointment(string name) {
+        Appointment* current = head;
+        Appointment* previous = nullptr;
+
+        while (current != nullptr) {
+            if (current->name == name) {
+                if (previous) {
+                    previous->next = current->next; // Bypass the current node
+                } else {
+                    head = current->next; // Update head if it's the first appointment
+                }
+                delete current; // Free memory
+                cout << "Appointment canceled successfully!\n";
+                return;
+            }
+            previous = current;
+            current = current->next;
+        }
+        cout << "Appointment not found!\n";
+    }
+
+    // Display all appointments
+    void displayAppointments() {
+        if (head == nullptr) {
+            cout << "No appointments scheduled.\n";
+            return;
+        }
+        Appointment* current = head;
+        cout << "Scheduled appointments:\n";
+        while (current != nullptr) {
+            cout << "Name: " << current->name << ", Time: "
+                 << current->startTime / 60 << ":" << (current->startTime % 60)
+                 << " to " << (current->startTime + SLOT_DURATION) / 60 << ":"
+                 << ((current->startTime + SLOT_DURATION) % 60) << "\n";
+            current = current->next;
+        }
+    }
+
+    // Sort appointments based on start time (simple bubble sort)
+    void sortAppointmentsSimple() {
+        if (head == nullptr || head->next == nullptr) return; // No need to sort
+
+        for (Appointment* i = head; i != nullptr; i = i->next) {
+            for (Appointment* j = head; j->next != nullptr; j = j->next) {
+                if (j->startTime > j->next->startTime) {
+                    // Swap data instead of nodes
+                    string tempName = j->name;
+                    int tempStart = j->startTime;
+                    j->name = j->next->name;
+                    j->startTime = j->next->startTime;
+                    j->next->name = tempName;
+                    j->next->startTime = tempStart;
+                }
+            }
+        }
+        cout << "Appointments sorted successfully (simple sort)!\n";
+    }
+
+    // Sort appointments based on start time (using pointer manipulation)
+    void sortAppointmentsPointer() {
+        if (head == nullptr || head->next == nullptr) return; // No need to sort
+
+        Appointment* sorted = nullptr;
+
+        // Build the sorted list
+        while (head != nullptr) {
+            Appointment* current = head;
+            head = head->next;
+
+            if (sorted == nullptr || sorted->startTime >= current->startTime) {
+                current->next = sorted;
+                sorted = current;
+            } else {
+                Appointment* temp = sorted;
+                while (temp->next != nullptr && temp->next->startTime < current->startTime) {
+                    temp = temp->next;
+                }
+                current->next = temp->next;
+                temp->next = current;
+            }
+        }
+
+        head = sorted; // Update head to the new sorted list
+        cout << "Appointments sorted successfully (pointer manipulation)!\n";
+    }
+
+    ~AppointmentScheduler() {
+        while (head) {
+            Appointment* temp = head;
+            head = head->next;
+            delete temp;
+        }
+    }
+};
+
+void displayMenu() {
+    cout << "\nAppointment Scheduler Menu:\n";
+    cout << "1. Display Free Slots\n";
+    cout << "2. Book Appointment\n";
+    cout << "3. Cancel Appointment\n";
+    cout << "4. Display Appointments\n";
+    cout << "5. Sort Appointments (Simple Sort)\n";
+    cout << "6. Sort Appointments (Pointer Manipulation)\n";
+    cout << "7. Exit\n";
+}
+
+int main() {
+    AppointmentScheduler scheduler;
+    int choice;
+    string name;
+    int startTime;
+    cout<<"APPOINTMENT IS ONLY FROM  9:00 am to 10:00 am\n";
+
+    while (true) {
+        displayMenu();
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                scheduler.displayFreeSlots();
+                break;
+            case 2:
+                cout << "Enter name: ";
+                cin >> name;
+                cout << "Enter start time (540 for 9:00 AM to  590 for 9:50 AM): ";
+                cin >> startTime;
+                scheduler.bookAppointment(name, startTime);
+                break;
+            case 3:
+                cout << "Enter name of the appointment to cancel: ";
+                cin >> name;
+                scheduler.cancelAppointment(name);
+                break;
+            case 4:
+                scheduler.displayAppointments();
+                break;
+            case 5:
+                scheduler.sortAppointmentsSimple();
+                break;
+            case 6:
+                scheduler.sortAppointmentsPointer();
+                break;
+            case 7:
+                return 0;
+            default:
+                cout << "Invalid choice! Please try again.\n";
+        }
+    }
+
+    return 0;
+}

@@ -1,0 +1,186 @@
+#include <iostream>
+#include <string>
+#include <cctype>  // For isalnum() function
+
+using namespace std;
+
+// Stack class to handle strings using an array
+class Stack {
+private:
+    string arr[50];  // Static array of fixed size
+    int top;
+    int max_size;
+
+public:
+    // Constructor to initialize the stack
+    Stack(int size = 50) : max_size(size), top(-1) {}
+
+    // Push a string onto the stack
+    void push(const string& element) {
+        if (top < max_size - 1) {
+            arr[++top] = element;
+        }
+    }
+
+    // Pop a string from the stack
+    string pop() {
+        if (top >= 0) {
+            return arr[top--];
+        }
+        return "";
+    }
+
+    // Peek at the top element of the stack
+    string peek() {
+        if (top >= 0) {
+            return arr[top];
+        }
+        return "";
+    }
+
+    // Check if the stack is empty
+    bool isEmpty() {
+        return top == -1;
+    }
+
+    // Check if the stack is full
+    bool isFull() {
+        return top == max_size - 1;
+    }
+};
+
+// ExpressionConverter class to handle the conversion logic
+class ExpressionConverter {
+private:
+    Stack tempStack;
+
+public:
+    // Constructor to initialize the stack with a given size
+    ExpressionConverter(int size) : tempStack(size) {}
+
+    // Helper function to calculate the length of a string
+    int stringLength(const string& str) {
+        int length = 0;
+        for (int i = 0; ; i++) {
+            if (str[i] == '\0') {
+                break;
+            }
+            length++;
+        }
+        return length;
+    }
+
+    // Convert prefix to postfix
+    string prefixToPostfix(const string& expression) {
+        int len = stringLength(expression);
+        for (int i = len - 1; i >= 0; --i) {
+            char ch = expression[i];
+            if (isalnum(ch)) {
+                tempStack.push(string(1, ch));  // push the character as a string
+            } else {
+                string operand1 = tempStack.pop();
+                string operand2 = tempStack.pop();
+                tempStack.push(operand1 + operand2 + string(1, ch));
+            }
+        }
+        return tempStack.peek();
+    }
+
+    // Convert prefix to infix
+    string prefixToInfix(const string& expression) {
+        int len = stringLength(expression);
+        for (int i = len - 1; i >= 0; --i) {
+            char ch = expression[i];
+            if (isalnum(ch)) {
+                tempStack.push(string(1, ch));  // push the character as a string
+            } else {
+                string operand1 = tempStack.pop();
+                string operand2 = tempStack.pop();
+                tempStack.push("(" + operand1 + string(1, ch) + operand2 + ")");
+            }
+        }
+        return tempStack.peek();
+    }
+
+    // Convert postfix to infix
+    string postfixToInfix(const string& expression) {
+        int len = stringLength(expression);
+        for (int i = 0; i < len; ++i) {
+            char ch = expression[i];
+            if (isalnum(ch)) {
+                tempStack.push(string(1, ch));  // push the character as a string
+            } else {
+                string operand2 = tempStack.pop();
+                string operand1 = tempStack.pop();
+                tempStack.push("(" + operand1 + string(1, ch) + operand2 + ")");
+            }
+        }
+        return tempStack.peek();
+    }
+
+    // Convert postfix to prefix
+    string postfixToPrefix(const string& expression) {
+        int len = stringLength(expression);
+        for (int i = 0; i < len; ++i) {
+            char ch = expression[i];
+            if (isalnum(ch)) {
+                tempStack.push(string(1, ch));  // push the character as a string
+            } else {
+                string operand2 = tempStack.pop();
+                string operand1 = tempStack.pop();
+                tempStack.push(string(1, ch) + operand1 + operand2);
+            }
+        }
+        return tempStack.peek();
+    }
+};
+
+// Main function to drive the program
+int main() {
+    int size = 50;
+    ExpressionConverter converter(size);
+
+    int choice;
+    string expression;
+
+    do {
+        cout << "\nMenu: \n";
+        cout << "1. Convert Prefix to Postfix\n";
+        cout << "2. Convert Prefix to Infix\n";
+        cout << "3. Convert Postfix to Infix\n";
+        cout << "4. Convert Postfix to Prefix\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1:
+            cout << "Enter Prefix Expression: ";
+            cin >> expression;
+            cout << "Postfix Expression: " << converter.prefixToPostfix(expression) << endl;
+            break;
+        case 2:
+            cout << "Enter Prefix Expression: ";
+            cin >> expression;
+            cout << "Infix Expression: " << converter.prefixToInfix(expression) << endl;
+            break;
+        case 3:
+            cout << "Enter Postfix Expression: ";
+            cin >> expression;
+            cout << "Infix Expression: " << converter.postfixToInfix(expression) << endl;
+            break;
+        case 4:
+            cout << "Enter Postfix Expression: ";
+            cin >> expression;
+            cout << "Prefix Expression: " << converter.postfixToPrefix(expression) << endl;
+            break;
+        case 5:
+            cout << "Exiting..." << endl;
+            break;
+        default:
+            cout << "Invalid choice. Please try again." << endl;
+        }
+    } while (choice != 5);
+
+    return 0;
+}

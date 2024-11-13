@@ -1,0 +1,106 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+const int TABLE_SIZE = 10;    // Number of buckets in the hash table
+const int BUCKET_CAPACITY = 5; // Maximum entries per bucket for chaining
+
+struct Entry {
+    int key;
+    string value;
+    bool isOccupied;
+
+    Entry() : key(0), value(""), isOccupied(false) {}
+};
+
+class HashTable {
+private:
+    Entry table[TABLE_SIZE][BUCKET_CAPACITY]; // Array of arrays for separate chaining
+
+    int hashFunction(int key) {
+        return key % TABLE_SIZE;
+    }
+
+public:
+    // Insert key-value pair
+    void insert(int key, const string &value) {
+        int index = hashFunction(key);
+       
+        for (int i = 0; i < BUCKET_CAPACITY; i++) {
+            if (!table[index][i].isOccupied) {
+                table[index][i].key = key;
+                table[index][i].value = value;
+                table[index][i].isOccupied = true;
+                cout << "Inserted (" << key << ", " << value << ")" << endl;
+                return;
+            } else if (table[index][i].key == key) {
+                table[index][i].value = value;
+                cout << "Updated (" << key << ", " << value << ")" << endl;
+                return;
+            }
+        }
+        cout << "Insertion failed: Bucket " << index << " is full.\n";
+    }
+
+    // Find value by key
+    void find(int key) {
+        int index = hashFunction(key);
+       
+        for (int i = 0; i < BUCKET_CAPACITY; i++) {
+            if (table[index][i].isOccupied && table[index][i].key == key) {
+                cout << "Value found for key " << key << ": " << table[index][i].value << endl;
+                return;
+            }
+        }
+        cout << "Key " << key << " not found." << endl;
+    }
+
+    // Delete key-value pair
+    void remove(int key) {
+        int index = hashFunction(key);
+       
+        for (int i = 0; i < BUCKET_CAPACITY; i++) {
+            if (table[index][i].isOccupied && table[index][i].key == key) {
+                table[index][i].isOccupied = false;
+                cout << "Key " << key << " deleted." << endl;
+                return;
+            }
+        }
+        cout << "Key " << key << " not found." << endl;
+    }
+};
+
+int main() {
+    HashTable ht;
+    int choice, key;
+    string value;
+
+    do {
+        cout << "\nMenu:\n1. Insert\n2. Find\n3. Delete\n4. Exit\nEnter choice: ";
+        cin >> choice;
+        switch (choice) {
+            case 1:
+                cout << "Enter key and value to insert: ";
+                cin >> key >> value;
+                ht.insert(key, value);
+                break;
+            case 2:
+                cout << "Enter key to find: ";
+                cin >> key;
+                ht.find(key);
+                break;
+            case 3:
+                cout << "Enter key to delete: ";
+                cin >> key;
+                ht.remove(key);
+                break;
+            case 4:
+                cout << "Exiting program.\n";
+                break;
+            default:
+                cout << "Invalid choice! Try again.\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}

@@ -1,0 +1,222 @@
+#include <iostream>
+using namespace std;
+
+class Sparse {
+private:
+    int r, c, n;
+    int a[50][3];
+    int b[50][3];
+
+public:
+    void read();
+    void display();
+    void add(Sparse& s);
+    void f_transpose();
+    void simple_transpose();
+};
+
+void Sparse::read() {
+    int i, j;
+    cout << "Enter the Number of Rows & Columns: ";
+    cin >> r >> c;
+    cout << "Enter the number of non-zero elements in matrix: ";
+    cin >> n;
+
+    if (n > 50) {
+        cout << "Max size exceeded." << endl;
+        return;
+    }
+    a[0][0] = r;
+    a[0][1] = c;
+    a[0][2] = n;
+
+    for (i = 1; i <= n; i++) {
+        cout << "Enter the Row, Column, and Value of non-zero element: ";
+        cin >> a[i][0] >> a[i][1] >> a[i][2];
+    }
+}
+
+void Sparse::display() {
+    cout << "The Sparse matrix is:\n";
+    for (int i = 0; i <= n; i++) {
+        cout << a[i][0] << " " << a[i][1] << " " << a[i][2] << endl;
+    }
+}
+
+void Sparse::add(Sparse& s) {
+    int i = 1, j = 1, k = 1;
+    int t1 = a[0][2];
+    int t2 = s.a[0][2];
+    b[0][0] = a[0][0];
+    b[0][1] = a[0][1];
+
+    while (i <= t1 && j <= t2) {
+        if (a[i][0] > s.a[j][0]) {
+            b[k][0] = s.a[j][0];
+            b[k][1] = s.a[j][1];
+            b[k][2] = s.a[j][2];
+            k++; j++;
+        }
+        else if (a[i][0] < s.a[j][0]) {
+            b[k][0] = a[i][0];
+            b[k][1] = a[i][1];
+            b[k][2] = a[i][2];
+            k++; i++;
+        }
+        else if (a[i][1] > s.a[j][1]) {
+            b[k][0] = s.a[j][0];
+            b[k][1] = s.a[j][1];
+            b[k][2] = s.a[j][2];
+            k++; j++;
+        }
+        else if (a[i][1] < s.a[j][1]) {
+            b[k][0] = a[i][0];
+            b[k][1] = a[i][1];
+            b[k][2] = a[i][2];
+            k++; i++;
+        }
+        else {
+            b[k][0] = a[i][0];
+            b[k][1] = a[i][1];
+            b[k][2] = a[i][2] + s.a[j][2];
+            j++; k++; i++;
+        }
+    }
+
+    for (; i <= t1; i++) {
+        b[k][0] = a[i][0];
+        b[k][1] = a[i][1];
+        b[k][2] = a[i][2];
+        k++;
+    }
+    for (; j <= t2; j++) {
+        b[k][0] = s.a[j][0];
+        b[k][1] = s.a[j][1];
+        b[k][2] = s.a[j][2];
+        k++;
+    }
+    b[0][2] = k - 1;
+
+    cout << "Sum of two sparse matrices is:\n";
+    for (i = 0; i <= b[0][2]; i++) {
+        cout << b[i][0] << " " << b[i][1] << " " << b[i][2] << endl;
+    }
+}
+
+void Sparse::f_transpose() {
+    int result[50][3];
+    int total[c], index[c + 1];
+    for (int i = 0; i < c; i++) {
+        total[i] = 0;
+    }
+    for (int i = 1; i <= n; i++) {
+        total[a[i][1]]++;
+    }
+    index[0] = 1;
+    for (int i = 1; i <= c; i++) {
+        index[i] = index[i - 1] + total[i - 1];
+    }
+    result[0][0] = c;
+    result[0][1] = r;
+    result[0][2] = n;
+
+    for (int i = 1; i <= n; i++) {
+        int col = a[i][1];
+        int loc = index[col];
+        result[loc][0] = a[i][1];
+        result[loc][1] = a[i][0];
+        result[loc][2] = a[i][2];
+        index[col]++;
+    }
+
+    cout << "The Fast Transpose is:\n";
+    for (int i = 0; i <= n; i++) {
+        cout << result[i][0] << " " << result[i][1] << " " << result[i][2] << endl;
+    }
+}
+
+void Sparse::simple_transpose() {
+    int result[50][3];
+    result[0][0] = c;
+    result[0][1] = r;
+    result[0][2] = n;
+
+    int k = 1;
+    for (int j = 0; j < c; ++j) {
+        for (int i = 1; i <= n; ++i) {
+            if (a[i][1] == j) {
+                result[k][0] = j;
+                result[k][1] = a[i][0];
+                result[k][2] = a[i][2];
+                k++;
+            }
+        }
+    }
+
+    cout << "Simple Transpose of the sparse matrix is:\n";
+    for (int i = 0; i <= n; i++) {
+        cout << result[i][0] << " " << result[i][1] << " " << result[i][2] << endl;
+    }
+}
+
+int main() {
+    Sparse s1, s2;
+    int choice;
+    bool matrixRead = false;
+
+    do {
+        cout << "\nSparse Matrix Operations Menu:\n";
+        cout << "1. Read Matrix\n";
+        cout << "2. Display Matrix\n";
+        cout << "3. Add Matrices\n";
+        cout << "4. Fast Transpose\n";
+        cout << "5. Simple Transpose\n";
+        cout << "6. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1:
+            s1.read();
+            matrixRead = true;
+            break;
+        case 2:
+            if (matrixRead) {
+                s1.display();
+            } else {
+                cout << "Please read the matrix first.\n";
+            }
+            break;
+        case 3:
+            if (matrixRead) {
+                cout << "Enter data for the second matrix:\n";
+                s2.read();
+                s1.add(s2);
+            } else {
+                cout << "Please read the first matrix first.\n";
+            }
+            break;
+        case 4:
+            if (matrixRead) {
+                s1.f_transpose();
+            } else {
+                cout << "Please read the matrix first.\n";
+            }
+            break;
+        case 5:
+            if (matrixRead) {
+                s1.simple_transpose();
+            } else {
+                cout << "Please read the matrix first.\n";
+            }
+            break;
+        case 6:
+            cout << "Exiting program.\n";
+            break;
+        default:
+            cout << "Invalid choice. Try again.\n";
+        }
+    } while (choice != 6);
+
+    return 0;
+}

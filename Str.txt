@@ -1,0 +1,231 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Strings
+{
+private:
+    char str[10000];
+    char revStr[10000];
+    int count;
+
+public:
+    void read();
+    void getLength();
+    void getFrequency();
+    void getNewString();
+    void getDeleteChar();
+    void getReverseString();
+    void getPalindrome();
+    void replaceSubString();
+};
+
+void Strings::read()
+{
+    cout << "Enter a string: ";
+    cin>>str;
+    cout << "You entered: " << str << "\n\n";
+}
+
+void Strings::getLength()
+{
+    count = 0;
+    while (str[count] != '\0')
+    {
+        count++;
+    }
+    cout << "The length of the string is " << count << "\n\n";
+}
+
+void Strings::getFrequency()
+{
+    char a;
+    int flag = 0;
+    cout << "Enter a character to check its frequency: ";
+    cin >> a;
+    for (int i = 0; str[i] != '\0'; i++)
+    {
+        if (str[i] == a)
+        {
+            flag++;
+        }
+    }
+    cout << "Total occurrences of '" << a << "' = " << flag << "\n\n";
+}
+
+void Strings::getNewString()
+{
+    int pos, len;
+    cout << "Enter the position for the substring: ";
+    cin >> pos;
+    cout << "Enter the length of the substring: ";
+    cin >> len;
+
+    if (pos < 0 || len < 0 || pos >= count)
+    {
+        cout << "Invalid position or length.\n";
+        return;
+    }
+
+    char newStr[100];
+    for (int i = 0; i < len && str[pos + i] != '\0'; i++)
+    {
+        newStr[i] = str[pos + i];
+    }
+    newStr[len] = '\0';
+    cout << "Substring: " << newStr << "\n\n";
+}
+
+void Strings::getDeleteChar()
+{
+    char a;
+    cout << "Enter the character you want to delete: ";
+    cin >> a;
+    char newStr[10000];
+    int newCount = 0;
+
+    for (int i = 0; i < count; i++)
+    {
+        if (str[i] != a)
+        {
+            newStr[newCount++] = str[i];
+        }
+    }
+    newStr[newCount] = '\0';
+    strcpy(str, newStr);
+    count = newCount;
+    cout << "Modified string: " << str << "\n\n";
+}
+
+void Strings::getReverseString()
+{
+    int j = 0;
+    for (int i = count - 1; i >= 0; i--)
+    {
+        revStr[j++] = str[i];
+    }
+    revStr[j] = '\0';
+    cout << "Reversed string: " << revStr << "\n\n";
+}
+
+void Strings::getPalindrome()
+{
+    getReverseString(); // Ensure `revStr` is updated
+    bool isPalindrome = true;
+    for (int i = 0; i < count; i++)
+    {
+        if (str[i] != revStr[i])
+        {
+            isPalindrome = false;
+            break;
+        }
+    }
+    if (isPalindrome)
+    {
+        cout << "The string is a palindrome.\n\n";
+    }
+    else
+    {
+        cout << "The string is not a palindrome.\n\n";
+    }
+}
+
+void Strings::replaceSubString()
+{
+    char w[100], x[100];
+    cout << "Enter the substring to be replaced (w): ";
+    cin >> w;
+    cout << "Enter the replacement substring (x): ";
+    cin >> x;
+
+    int lenW = strlen(w);
+    int lenX = strlen(x);
+    int i = 0;
+
+    while (str[i] != '\0')
+    {
+        int j = 0;
+        while (w[j] != '\0' && str[i + j] == w[j])
+        {
+            j++;
+        }
+
+        if (w[j] == '\0') // Found occurrence of w
+        {
+            char tempStr[10000];
+            int tempIndex = 0;
+
+            for (int k = 0; k < i; k++)
+            {
+                tempStr[tempIndex++] = str[k];
+            }
+
+            for (int k = 0; k < lenX; k++)
+            {
+                tempStr[tempIndex++] = x[k];
+            }
+
+            for (int k = i + lenW; str[k] != '\0'; k++)
+            {
+                tempStr[tempIndex++] = str[k];
+            }
+            tempStr[tempIndex] = '\0';
+
+            strcpy(str, tempStr);
+            count = tempIndex;
+            i += lenX - 1; // Skip replaced substring
+        }
+        else
+        {
+            i++;
+        }
+    }
+    cout << "Modified string: " << str << "\n\n";
+}
+
+int main()
+{
+    Strings strObj;
+    int choice;
+
+    while (true)
+    {
+        cout << "String Operations\n";
+        cout << "1. Enter String\n";
+        cout << "2. Frequency of a Character\n";
+        cout << "3. Get Substring\n";
+        cout << "4. Delete a Character\n";
+        cout << "5. Replace Substring\n";
+        cout << "6. Check Palindrome\n";
+        cout << "7. Exit\n";
+        cout << "Enter Your Choice: ";
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            strObj.read();
+            break;
+        case 2:
+            strObj.getFrequency();
+            break;
+        case 3:
+            strObj.getNewString();
+            break;
+        case 4:
+            strObj.getDeleteChar();
+            break;
+        case 5:
+            strObj.replaceSubString();
+            break;
+        case 6:
+            strObj.getPalindrome();
+            break;
+        case 7:
+            cout << "Exiting...\n";
+            return 0;
+        default:
+            cout << "Invalid Choice.\n\n";
+        }
+    }
+}
